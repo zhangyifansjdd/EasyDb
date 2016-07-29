@@ -3,10 +3,7 @@ package zyf.easydb;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,16 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by ZhangYifan on 2016/7/25.
+ * Created by ZhangYifan on 2016/7/29.
  */
-public class EasyDbImpl implements EasyDb {
-
+public class EasyDbImpl extends EasyDbBaseImpl {
     private static EasyDb sInstance;
-    private SQLiteDatabase mDb;
 
-    private EasyDbImpl(Context context) {
-        File f = new File(context.getExternalFilesDir(null), "datebase");
-        mDb = SQLiteDatabase.openOrCreateDatabase(f, null);
+    private EasyDbImpl(Context context){
+        super(context);
     }
 
     public static synchronized EasyDb getInstance(Context context) {
@@ -199,28 +193,5 @@ public class EasyDbImpl implements EasyDb {
         if (table.isExist(mDb)) {
             mDb.delete(table.getTableName(), null, null);
         }
-    }
-
-    @Override
-    public void createTable(Class clazz) throws DbException {
-        Table table = new Table(clazz);
-        boolean isExist = table.isExist(mDb);
-        if (!isExist) {
-            table.create(mDb);
-        }
-    }
-
-    @Override
-    public void dropTable(Class clazz) throws DbException {
-        Table table = new Table(clazz);
-        boolean isExist = table.isExist(mDb);
-        if (isExist) {
-            table.drop(mDb);
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        mDb.close();
     }
 }

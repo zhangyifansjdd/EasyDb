@@ -94,6 +94,7 @@ public class Table {
         return columnLinkedHashMap;
     }
 
+    // TODO: 2016/7/29 要能对付更加复杂的实体类
     public void create(SQLiteDatabase database) throws DbException {
         if (mColumnLinkedHashMap == null || mColumnLinkedHashMap.isEmpty()) {
             throw new DbException("获取表列失败，创建" + tableName + "表失败！");
