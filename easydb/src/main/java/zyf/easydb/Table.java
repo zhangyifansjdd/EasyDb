@@ -88,8 +88,14 @@ public class Table {
         LinkedHashMap<String, Column> columnLinkedHashMap = new LinkedHashMap<>();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            DbColumn dbColumn = field.getAnnotation(DbColumn.class);
-            columnLinkedHashMap.put(field.getName(), new Column(field, dbColumn));
+            //当实体类为一个内部类时，内部类会多一个成员变量，引用的外部类
+            //当遇到该引用的成员变量，catch住，不往columnLinkedHashMap里添加
+            try {
+                DbColumn dbColumn = field.getAnnotation(DbColumn.class);
+                columnLinkedHashMap.put(field.getName(), new Column(field, dbColumn));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return columnLinkedHashMap;
     }
@@ -129,10 +135,10 @@ public class Table {
                 if (!column.isCreateForeignTable())
                     sqlBuilder.append(',');
             }
-//            // 创建表之前需要判断是否含有主键
-//            if (!havePrimaryKey) {
-//                throw new DbException("没有主键，请在注解中添加主键！");
-//            }
+            // 创建表之前需要判断是否含有主键
+            if (!havePrimaryKey) {
+                throw new DbException("没有主键，请在注解中添加主键！");
+            }
 
             sqlBuilder.deleteCharAt(sqlBuilder.length() - 1);
             sqlBuilder.append(')');
