@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,14 +18,43 @@ import zyf.easydb.annotation.DbTable;
 public class Table {
     private String tableName;
     private Class clazz;
+    private static HashMap<String, Table> sTableInstances;
     private LinkedHashMap<String, Column> mColumnLinkedHashMap;
 
-    public Table(Class clazz) {
+    private Table(Class clazz) {
         DbTable dbTable = (DbTable) clazz.getAnnotation(DbTable.class);
         tableName = dbTable.tableName();
         this.clazz = clazz;
         mColumnLinkedHashMap = getColumns(clazz);
     }
+
+    /**
+     * 容器单例模式实现table的单例及存储，提高获取table的效率
+     * @param clazz
+     * @return
+     * @throws DbException
+     */
+    public static synchronized Table getTableInstance(Class clazz) throws DbException {
+        Table table = null;
+        String tableName = null;
+        DbTable dbTable = (DbTable) clazz.getAnnotation(DbTable.class);
+        if (dbTable != null) {
+            tableName = dbTable.tableName();
+            if (tableName == null) {
+                throw new DbException("没有设置" + clazz.getSimpleName() + "表名!");
+            }
+        }
+        if (sTableInstances == null) {
+            sTableInstances = new HashMap<>();
+        }
+        table = sTableInstances.get(tableName);
+        if (table == null) {
+            table = new Table(clazz);
+            sTableInstances.put(tableName, table);
+        }
+        return table;
+    }
+
 
     public String getTableName() {
         return tableName;
@@ -66,10 +96,9 @@ public class Table {
     }
 
     public String getPrimaryKeyName() {
-        Iterator iterator=mColumnLinkedHashMap.entrySet().iterator();
+        Iterator iterator = mColumnLinkedHashMap.entrySet().iterator();
 
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
             String fieldName = entry.getKey();
             Column column = entry.getValue();
@@ -94,7 +123,6 @@ public class Table {
                 DbColumn dbColumn = field.getAnnotation(DbColumn.class);
                 columnLinkedHashMap.put(field.getName(), new Column(field, dbColumn));
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         return columnLinkedHashMap;

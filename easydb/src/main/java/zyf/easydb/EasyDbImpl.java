@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by ZhangYifan on 2016/7/29.
  */
-public class EasyDbImpl extends EasyDbBaseImpl {
+class EasyDbImpl extends EasyDbBaseImpl {
     private static EasyDb sInstance;
 
     private EasyDbImpl(Context context){
@@ -31,10 +31,11 @@ public class EasyDbImpl extends EasyDbBaseImpl {
 
     @Override
     public void save(Object object) throws DbException {
+        // TODO: 2016/7/29 增加外键的支持
         Class clazz = object.getClass();
 
         createTable(clazz);
-        Table table = new Table(clazz);
+        Table table = Table.getTableInstance(clazz);
         ContentValues contentValues = new ContentValues();
         LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumnLinkedHashMap();
         Iterator iterator = columnLinkedHashMap.entrySet().iterator();
@@ -103,7 +104,7 @@ public class EasyDbImpl extends EasyDbBaseImpl {
 
     @Override
     public <T> List<T> queryAll(Class<T> clazz) throws DbException {
-        Table table = new Table(clazz);
+        Table table = Table.getTableInstance(clazz);
 
         Cursor cursor = mDb.query(table.getTableName(), null, null, null, null, null, null);
         if (cursor == null) return null;
@@ -149,11 +150,12 @@ public class EasyDbImpl extends EasyDbBaseImpl {
         return list;
     }
 
+    // TODO: 2016/7/29 增加外键的支持
     @Override
     public void delete(Object object) throws DbException {
         Class clazz = object.getClass();
 
-        Table table = new Table(clazz);
+        Table table = Table.getTableInstance(clazz);
         String primaryKeyValue = null;
         String primaryKeyName = table.getPrimaryKeyName();
         if (primaryKeyName == null) {
@@ -189,7 +191,7 @@ public class EasyDbImpl extends EasyDbBaseImpl {
 
     @Override
     public void deleteAll(Class clazz) throws DbException {
-        Table table = new Table(clazz);
+        Table table = Table.getTableInstance(clazz);
         if (table.isExist(mDb)) {
             mDb.delete(table.getTableName(), null, null);
         }

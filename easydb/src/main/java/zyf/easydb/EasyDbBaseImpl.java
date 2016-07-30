@@ -9,17 +9,17 @@ import java.io.IOException;
 /**
  * Created by ZhangYifan on 2016/7/29.
  */
-public abstract class EasyDbBaseImpl implements EasyDb{
+abstract class EasyDbBaseImpl implements EasyDb{
     protected SQLiteDatabase mDb;
 
     protected EasyDbBaseImpl(Context context) {
-        File f = new File(context.getExternalFilesDir(null), "datebase.db");
-        mDb = SQLiteDatabase.openOrCreateDatabase(f, null);
+        File file = new File(context.getExternalFilesDir(null), "datebase.db");
+        mDb = SQLiteDatabase.openOrCreateDatabase(file, null);
     }
 
     @Override
     public void createTable(Class clazz) throws DbException {
-        Table table = new Table(clazz);
+        Table table = Table.getTableInstance(clazz);
         boolean isExist = table.isExist(mDb);
         if (!isExist) {
             table.create(mDb);
@@ -28,7 +28,7 @@ public abstract class EasyDbBaseImpl implements EasyDb{
 
     @Override
     public void dropTable(Class clazz) throws DbException {
-        Table table = new Table(clazz);
+        Table table = Table.getTableInstance(clazz);
         boolean isExist = table.isExist(mDb);
         if (isExist) {
             table.drop(mDb);
