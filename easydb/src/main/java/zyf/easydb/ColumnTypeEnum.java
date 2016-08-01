@@ -1,6 +1,8 @@
 package zyf.easydb;
 
 /**
+ * Sqlite数据存储类型的枚举
+ * <p>
  * Created by ZhangYifan on 2016/7/26.
  */
 public enum ColumnTypeEnum {

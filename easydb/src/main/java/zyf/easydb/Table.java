@@ -8,17 +8,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import zyf.easydb.annotation.DbColumn;
 import zyf.easydb.annotation.DbTable;
 
 /**
+ * 一张表的信息
+ * 包含表明，类信息，及所有列的信息
+ * 实现了容器的单例模式
+ * <p>
  * Created by ZhangYifan on 2016/7/26.
  */
 public class Table {
     private String tableName;
     private Class clazz;
-    private static HashMap<String, Table> sTableInstances;
+    private static ConcurrentHashMap<String, Table> sTableInstances;
     private LinkedHashMap<String, Column> mColumnLinkedHashMap;
 
     private Table(Class clazz) {
@@ -30,6 +35,7 @@ public class Table {
 
     /**
      * 容器单例模式实现table的单例及存储，提高获取table的效率
+     *
      * @param clazz
      * @return
      * @throws DbException
@@ -41,11 +47,11 @@ public class Table {
         if (dbTable != null) {
             tableName = dbTable.tableName();
             if (tableName == null) {
-                throw new DbException("没有设置" + clazz.getSimpleName() + "表名!");
+                throw new DbException("没有设置" + clazz.getSimpleName() + "的表名!");
             }
         }
         if (sTableInstances == null) {
-            sTableInstances = new HashMap<>();
+            sTableInstances = new ConcurrentHashMap<>();
         }
         table = sTableInstances.get(tableName);
         if (table == null) {
@@ -64,6 +70,13 @@ public class Table {
         return mColumnLinkedHashMap;
     }
 
+    /**
+     * 该表是否已经被创建
+     *
+     * @param database
+     * @return
+     * @throws DbException
+     */
     public boolean isExist(SQLiteDatabase database) throws DbException {
         boolean isExist = false;
         Cursor cursor = database.rawQuery("SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='" + tableName + "'", null);
@@ -82,7 +95,15 @@ public class Table {
         return isExist;
     }
 
-    private Class haveForeignTable() {
+    /**
+     * 该表是否含有外键
+     * 如果不需要关联外键的表则返回null
+     * 如果存在则返回外键表的类信息
+     *
+     * @return
+     */
+    protected Class haveForeignTable() {
+        Table table = null;
         Class foreignClass = null;
         Iterator iterator = mColumnLinkedHashMap.entrySet().iterator();
 
@@ -95,6 +116,11 @@ public class Table {
         return foreignClass;
     }
 
+    /**
+     * 获取该表的主键列名
+     *
+     * @return
+     */
     public String getPrimaryKeyName() {
         Iterator iterator = mColumnLinkedHashMap.entrySet().iterator();
 
@@ -128,6 +154,13 @@ public class Table {
         return columnLinkedHashMap;
     }
 
+    /**
+     * 创建表
+     * 若需要外键表则一并创建
+     *
+     * @param database
+     * @throws DbException
+     */
     // TODO: 2016/7/29 要能对付更加复杂的实体类
     public void create(SQLiteDatabase database) throws DbException {
         if (mColumnLinkedHashMap == null || mColumnLinkedHashMap.isEmpty()) {
@@ -174,20 +207,32 @@ public class Table {
             database.execSQL(sql);
 
             if (isNeedCreateForeign) {
-                Table table = new Table(foreignClass);
+                Table table = Table.getTableInstance(foreignClass);
                 //将该列改为外键，不再是主键
-                foreignColumn.setPrimaryKey(false);
-                table.getColumnLinkedHashMap().put(foreignColumnKey, foreignColumn);
-                table.create(database);
+                try {
+                    //这里采用克隆的方式，以免对原有的column产生影响
+                    Column foreignColumnClone = (Column) foreignColumn.clone();
+                    foreignColumnClone.setPrimaryKey(false);
+                    table.getColumnLinkedHashMap().put(foreignColumnKey, foreignColumnClone);
+                    table.create(database);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
+    /**
+     * 删除表结构
+     * 如果含有外键表，则一并删除
+     *
+     * @param database
+     * @throws DbException
+     */
     public void drop(SQLiteDatabase database) throws DbException {
         String sql = "drop table if exists " + tableName;
         database.execSQL(sql);
         //如果有外键链接，还需要把外键的表删除掉
-        Class c = haveForeignTable();
         if (haveForeignTable() != null) {
             Table table = new Table(haveForeignTable());
             table.drop(database);

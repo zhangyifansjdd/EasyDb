@@ -5,9 +5,13 @@ import java.lang.reflect.Field;
 import zyf.easydb.annotation.DbColumn;
 
 /**
+ * 列信息
+ * 包含对应成员变量，列名，是否是主键，是否需要创建外键关联表及类型
+ * 实现了克隆模式，以免在复用修改时对原对象产生影响
+ *
  * Created by ZhangYifan on 2016/7/26.
  */
-public class Column {
+public class Column implements Cloneable{
     private Field field;
     private String columnName;
     private boolean isPrimaryKey;
@@ -57,5 +61,10 @@ public class Column {
             return ColumnTypeEnum.REAL;
         }
         return ColumnTypeEnum.NULL;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
