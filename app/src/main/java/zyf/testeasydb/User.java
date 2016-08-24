@@ -20,6 +20,9 @@ public class User implements Cloneable{
     @DbColumn(createForeignTable = true, foreignClass = Salary.class)
     private List<Salary> salaries;
 
+//    @DbColumn(createForeignTable = true,foreignClass = String.class)
+//    private String[] friends;
+
     public User() {
     }
 
@@ -52,6 +55,14 @@ public class User implements Cloneable{
 
         this.salaries = salaries;
     }
+
+//    public String[] getFriends() {
+//        return friends;
+//    }
+//
+//    public void setFriends(String[] friends) {
+//        this.friends = friends;
+//    }
 
     @Override
     protected Object clone() throws CloneNotSupportedException {

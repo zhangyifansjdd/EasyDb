@@ -12,10 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 import zyf.easydb.annotation.DbColumn;
+import zyf.easydb.table.Table;
 
 /**
  * EasyDb的实现类，实现了增删改查
- *
+ * <p>
  * Created by ZhangYifan on 2016/7/29.
  */
 class EasyDbImpl extends EasyDbBaseImpl {
@@ -34,158 +35,23 @@ class EasyDbImpl extends EasyDbBaseImpl {
     }
 
     @Override
-    public void save(Object object) throws DbException {
+    public void insert(Object object) throws DbException {
         Class clazz = object.getClass();
 
-        createTable(clazz);
+        // TODO: 2016/8/24 如果表没创建则先创建表
+        createTableIfNotExist(clazz);
+
         Table table = Table.getTableInstance(clazz);
-        ContentValues contentValues = new ContentValues();
-        LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumnLinkedHashMap();
-        Iterator iterator = columnLinkedHashMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            try {
-                Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
-                String fieldName = entry.getKey();
-                Field field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Object val = field.get(object);
-                String type = field.getType().getSimpleName();
-                Column column = entry.getValue();
-
-                if (val == null) continue;
-
-                if (column.isCreateForeignTable()) {
-                    List<?> forgienObjects = (List<?>) val;
-                    if (forgienObjects != null && forgienObjects.size() > 0) {
-                        try {
-                            Field primaryKeyField = clazz.getDeclaredField(table.getPrimaryKeyName());
-                            primaryKeyField.setAccessible(true);
-                            Column foreignColumnClone = (Column) new Column(primaryKeyField, primaryKeyField.getAnnotation(DbColumn.class)).clone();
-                            foreignColumnClone.setPrimaryKey(false);
-                            Table foreignTable = Table.getTableInstance(column.getForeignClass());
-                            foreignTable.getColumnLinkedHashMap().put(table.getPrimaryKeyName(), foreignColumnClone);
-                            Object primaryKeyVal = primaryKeyField.get(object);
-                            for (Object foreignObject : forgienObjects) {
-                                save(foreignObject, table.getPrimaryKeyName(), primaryKeyVal, primaryKeyField.getType().getSimpleName());
-                            }
-                        } catch (CloneNotSupportedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                putContentValueWithType(contentValues, fieldName, val, type);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-        }
-        mDb.insert(table.getTableName(), null, contentValues);
-    }
-
-    private void save(Object object, String foreignKeyName, Object foreignKeyVal, String foreignKeyType) throws DbException {
-        Class clazz = object.getClass();
-
-        createTable(clazz);
-        Table table = Table.getTableInstance(clazz);
-        ContentValues contentValues = new ContentValues();
-        LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumnLinkedHashMap();
-        Iterator iterator = columnLinkedHashMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            try {
-                Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
-                String fieldName = entry.getKey();
-                Field field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Object val = field.get(object);
-                String type = field.getType().getSimpleName();
-                Column column = entry.getValue();
-
-                if (val == null) continue;
-
-                if (column.isCreateForeignTable()) {
-                    List<?> forgienObjects = (List<?>) val;
-                    if (forgienObjects != null && forgienObjects.size() > 0) {
-                        try {
-                            Field primaryKeyField = clazz.getDeclaredField(table.getPrimaryKeyName());
-                            primaryKeyField.setAccessible(true);
-                            Column foreignColumnClone = (Column) new Column(primaryKeyField, primaryKeyField.getAnnotation(DbColumn.class)).clone();
-                            foreignColumnClone.setPrimaryKey(false);
-                            Table foreignTable = Table.getTableInstance(column.getForeignClass());
-                            foreignTable.getColumnLinkedHashMap().put(table.getPrimaryKeyName(), foreignColumnClone);
-                            Object primaryKeyVal = primaryKeyField.get(object);
-                            for (Object foreignObject : forgienObjects) {
-                                save(foreignObject, table.getPrimaryKeyName(), primaryKeyVal, primaryKeyField.getType().getSimpleName());
-                            }
-                        } catch (CloneNotSupportedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                putContentValueWithType(contentValues, fieldName, val, type);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-        }
-        putContentValueWithType(contentValues, foreignKeyName, foreignKeyVal, foreignKeyType);
-
-        mDb.insert(table.getTableName(), null, contentValues);
-    }
-
-    private void putContentValueWithType(ContentValues contentValues, String key, Object val, String type) {
-        switch (type) {
-            case "String":
-                contentValues.put(key, (String) val);
-                break;
-            case "boolean":
-                contentValues.put(key, (boolean) val);
-                break;
-            case "Boolean":
-                contentValues.put(key, (Boolean) val);
-                break;
-            case "byte":
-                contentValues.put(key, (byte) val);
-                break;
-            case "Byte":
-                contentValues.put(key, (Byte) val);
-                break;
-            case "int":
-                contentValues.put(key, (int) val);
-                break;
-            case "Integer":
-                contentValues.put(key, (Integer) val);
-                break;
-            case "long":
-                contentValues.put(key, (long) val);
-                break;
-            case "Long":
-                contentValues.put(key, (Long) val);
-                break;
-            case "float":
-                contentValues.put(key, (float) val);
-                break;
-            case "Float":
-                contentValues.put(key, (Float) val);
-                break;
-            case "double":
-                contentValues.put(key, (double) val);
-            case "Double":
-                contentValues.put(key, (Double) val);
-                break;
-        }
+        table.insert(mDb,object);
     }
 
     @Override
-    public void saveAll(List<Object> objects) throws DbException {
+    public void insertAll(List<Object> objects) throws DbException {
         if (objects == null || objects.size() == 0) {
             throw new DbException("List空指针或size为0!");
         }
-        // TODO: 2016/7/27 这样做效率会有所降低，以后改进
         for (Object object : objects) {
-            save(object);
+            insert(object);
         }
     }
 
@@ -201,21 +67,39 @@ class EasyDbImpl extends EasyDbBaseImpl {
 
     @Override
     public <T> List<T> query(Selector<T> selector) throws DbException {
-        return null;
+        Cursor cursor = mDb.query(selector.getTableName(), selector.getDisplayColumns(), selector.getQueryColumns(), selector.getQueryArgs(), null, null, selector.getOrderBy());
+        List<T> list = null;
+        if (cursor != null) {
+            list = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                try {
+                    T instance = (T) selector.getTable().getClazz().newInstance();
+                    for (String disPlaycolumn : selector.getDisplayColumns()) {
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return list;
     }
 
     @Override
     public <T> List<T> queryAll(Class<T> clazz) throws DbException {
+        // TODO: 2016/8/5 添加外键支持
         Table table = Table.getTableInstance(clazz);
 
         Cursor cursor = mDb.query(table.getTableName(), null, null, null, null, null, null);
         if (cursor == null) return null;
 
         List<T> list = new ArrayList<>();
-        LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumnLinkedHashMap();
+        LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumns();
         while (cursor.moveToNext()) {
             try {
                 T instance = clazz.newInstance();
+                Column primaryKeyColumn = null;
+                String primaryKeyVal = null;
                 Iterator iterator = columnLinkedHashMap.entrySet().iterator();
                 while (iterator.hasNext()) {
                     Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
@@ -223,6 +107,11 @@ class EasyDbImpl extends EasyDbBaseImpl {
                     Column column = entry.getValue();
                     Field field = clazz.getDeclaredField(fieldName);
                     field.setAccessible(true);
+
+                    if (column.isPrimaryKey()) {
+                        primaryKeyColumn = column;
+                    }
+
                     String type = field.getType().getSimpleName();
                     Object value = null;
                     switch (type) {
@@ -230,7 +119,7 @@ class EasyDbImpl extends EasyDbBaseImpl {
                             value = cursor.getString(cursor.getColumnIndex(column.getColumnName()));
                             break;
                         case "int":
-                            value = cursor.getInt(cursor.getColumnIndex(column.getColumnName()));
+                             value = cursor.getInt(cursor.getColumnIndex(column.getColumnName()));
                             break;
                         case "long":
                             value = cursor.getLong(cursor.getColumnIndex(column.getColumnName()));
@@ -242,6 +131,15 @@ class EasyDbImpl extends EasyDbBaseImpl {
                             value = cursor.getDouble(cursor.getColumnIndex(column.getColumnName()));
                     }
                     field.set(instance, value);
+                    if (column.isPrimaryKey()){
+                        primaryKeyVal=value+"";
+                    }
+                }
+                if (table.haveForeignTable()) {
+
+//                    Table foreignTable = Table.getTableInstance(table.haveForeignTable());
+//                    Cursor cursor1 = mDb.query(foreignTable.getTableName(),null,primaryKeyColumn.getColumnName()+"=?",new String[]{primaryKeyVal},null,null,null);
+
                 }
                 list.add(instance);
             } catch (Exception e) {
@@ -252,7 +150,6 @@ class EasyDbImpl extends EasyDbBaseImpl {
         return list;
     }
 
-    // TODO: 2016/7/29 增加外键的支持
     @Override
     public void delete(Object object) throws DbException {
         Class clazz = object.getClass();
@@ -291,10 +188,10 @@ class EasyDbImpl extends EasyDbBaseImpl {
         mDb.delete(table.getTableName(), primaryKeyName + "=?", new String[]{primaryKeyValue});
 
         //如果含有外键，则也需要删除对应的数据
-        if (table.haveForeignTable() != null) {
-            Table foreignTable = Table.getTableInstance(table.haveForeignTable());
-            mDb.delete(foreignTable.getTableName(), primaryKeyName + "=?", new String[]{primaryKeyValue});
-        }
+//        if (table.haveForeignTable() != null) {
+//            Table foreignTable = Table.getTableInstance(table.haveForeignTable());
+//            mDb.delete(foreignTable.getTableName(), primaryKeyName + "=?", new String[]{primaryKeyValue});
+//        }
     }
 
     @Override
@@ -304,10 +201,10 @@ class EasyDbImpl extends EasyDbBaseImpl {
             mDb.delete(table.getTableName(), null, null);
 
             //如果含有外键，则也需要删除对应的数据
-            if (table.haveForeignTable() != null) {
-                Table foreignTable = Table.getTableInstance(table.haveForeignTable());
-                mDb.delete(foreignTable.getTableName(), null, null);
-            }
+//            if (table.haveForeignTable() != null) {
+//                Table foreignTable = Table.getTableInstance(table.haveForeignTable());
+//                mDb.delete(foreignTable.getTableName(), null, null);
+//            }
         }
     }
 }

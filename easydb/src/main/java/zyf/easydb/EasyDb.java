@@ -15,14 +15,14 @@ public interface EasyDb extends Closeable {
      * @param object
      * @throws DbException
      */
-    void save(Object object) throws DbException;
+    void insert(Object object) throws DbException;
 
     /**
      * 保存一系列objects
      * @param objects
      * @throws DbException
      */
-    void saveAll(List<Object> objects) throws DbException;
+    void insertAll(List<Object> objects) throws DbException;
 
     /**
      * 对一个object进行更新
@@ -76,7 +76,7 @@ public interface EasyDb extends Closeable {
      * @param clazz
      * @throws DbException
      */
-    void createTable(Class clazz) throws DbException;
+    void createTableIfNotExist(Class clazz) throws DbException;
 
     /**
      * 删除某张表结构

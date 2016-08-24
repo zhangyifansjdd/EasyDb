@@ -36,16 +36,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void test() throws DbException {
-        mEasyDb.deleteAll(User.class);
-//        mEasyDb.dropTable(User.class);
+        mEasyDb.dropTable(User.class);
+//        mEasyDb.deleteAll(User.class);
+////        mEasyDb.dropTable(User.class);
         User user = new User(1, "ZYF");
-        try {
-            User user1 = (User) user.clone();
-            user1.setName("KJHKHKH");
-            Log.i("ZYF", "test: ");
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            User user1 = (User) user.clone();
+//            user1.setName("KJHKHKH");
+//            Log.i("ZYF", "test: ");
+//        } catch (CloneNotSupportedException e) {
+//            e.printStackTrace();
+//        }
         List<Salary> salaries = new ArrayList<>();
         Salary salary1 = new Salary(1, 1000);
         Salary salary2 = new Salary(2, 2000);
@@ -53,7 +54,11 @@ public class MainActivity extends AppCompatActivity {
         salaries.add(salary2);
         user.setSalaries(salaries);
         mEasyDb.save(user);
-        mEasyDb.delete(user);
+//        mEasyDb.delete(user);
+//        Table table=Table.getTableInstance(User.class);
+//        mEasyDb.dropTable(User.class);
+//        mEasyDb.createTableIfNotExist(User.class);
+//        mEasyDb.dropTable(User.class);
         Log.i("ZYF", "test: ");
     }
 }

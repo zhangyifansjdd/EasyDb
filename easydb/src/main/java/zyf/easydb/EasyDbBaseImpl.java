@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.io.File;
 import java.io.IOException;
 
+import zyf.easydb.table.Table;
+
 /**
  * EasyDb的基础实现类，主要实现了数据库的创建，表的创建及销毁
  *
@@ -21,7 +23,7 @@ abstract class EasyDbBaseImpl implements EasyDb{
     }
 
     @Override
-    public void createTable(Class clazz) throws DbException {
+    public void createTableIfNotExist(Class clazz) throws DbException {
         Table table = Table.getTableInstance(clazz);
         boolean isExist = table.isExist(mDb);
         if (!isExist) {
