@@ -1,5 +1,8 @@
 package zyf.easydb;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import zyf.easydb.table.Table;
 
 /**
@@ -15,6 +18,7 @@ public class Selector<T> {
     private String mQueryColumns;
     private String[] mQueryArgs;
     private String mOrderBy;
+    private List<Express> mExpresses;
 
     private Selector(Class<T> clazz) {
         try {
@@ -26,6 +30,12 @@ public class Selector<T> {
 
     public static <T> Selector<T> fromTable(Class<T> clazz) {
         return new Selector<T>(clazz);
+    }
+
+    public void addExpress(Express express){
+        if (mExpresses==null)
+            mExpresses=new ArrayList<>();
+        mExpresses.add(express);
     }
 
     public Selector<T> setDisplayColumns(String[] displayColumns) {
@@ -88,8 +98,49 @@ public class Selector<T> {
     @Override
     public String toString() {
 
-        StringBuilder builder = new StringBuilder();
+//        StringBuilder builder = new StringBuilder();
         // TODO: 2016/8/5 根据成员变量，组成sql语句
-        return builder.toString();
+        return mExpresses.get(0).toString();
+    }
+
+    public class Express{
+        private String columnName;
+        private String sign;
+        private String value;
+
+        public Express(String columnName, String sign, String value) {
+            this.columnName = columnName;
+            this.sign = sign;
+            this.value = value;
+        }
+
+        public String getColumnName() {
+            return columnName;
+        }
+
+        public void setColumnName(String columnName) {
+            this.columnName = columnName;
+        }
+
+        public String getSign() {
+            return sign;
+        }
+
+        public void setSign(String sign) {
+            this.sign = sign;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "select * from "+ mTable.getTableName()+" where "+columnName+sign+"'"+value+"'"+";";
+        }
     }
 }

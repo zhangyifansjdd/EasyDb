@@ -44,4 +44,12 @@ abstract class EasyDbBaseImpl implements EasyDb{
     public void close() throws IOException {
         mDb.close();
     }
+
+    @Override
+    public void execSQL(String sql) throws DbException {
+        if (sql==null||sql.length()==0) {
+            throw new DbException("sql语句为空！");
+        }
+        mDb.execSQL(sql);
+    }
 }

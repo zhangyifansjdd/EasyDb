@@ -53,7 +53,9 @@ public class MainActivity extends AppCompatActivity {
         salaries.add(salary1);
         salaries.add(salary2);
         user.setSalaries(salaries);
-        mEasyDb.save(user);
+        mEasyDb.insert(user);
+        List<User> list=mEasyDb.queryAll(User.class);
+        mEasyDb.delete(user);
 //        mEasyDb.delete(user);
 //        Table table=Table.getTableInstance(User.class);
 //        mEasyDb.dropTable(User.class);

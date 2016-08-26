@@ -84,4 +84,6 @@ public interface EasyDb extends Closeable {
      * @throws DbException
      */
     void dropTable(Class clazz) throws DbException;
+
+    void execSQL(String sql) throws DbException;
 }

@@ -16,7 +16,7 @@ import zyf.easydb.table.Table;
 
 /**
  * EasyDb的实现类，实现了增删改查
- * <p>
+ * <p/>
  * Created by ZhangYifan on 2016/7/29.
  */
 class EasyDbImpl extends EasyDbBaseImpl {
@@ -42,7 +42,7 @@ class EasyDbImpl extends EasyDbBaseImpl {
         createTableIfNotExist(clazz);
 
         Table table = Table.getTableInstance(clazz);
-        table.insert(mDb,object);
+        table.insert(mDb, object);
     }
 
     @Override
@@ -87,67 +87,69 @@ class EasyDbImpl extends EasyDbBaseImpl {
 
     @Override
     public <T> List<T> queryAll(Class<T> clazz) throws DbException {
-        // TODO: 2016/8/5 添加外键支持
-        Table table = Table.getTableInstance(clazz);
-
-        Cursor cursor = mDb.query(table.getTableName(), null, null, null, null, null, null);
-        if (cursor == null) return null;
-
-        List<T> list = new ArrayList<>();
-        LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumns();
-        while (cursor.moveToNext()) {
-            try {
-                T instance = clazz.newInstance();
-                Column primaryKeyColumn = null;
-                String primaryKeyVal = null;
-                Iterator iterator = columnLinkedHashMap.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
-                    String fieldName = entry.getKey();
-                    Column column = entry.getValue();
-                    Field field = clazz.getDeclaredField(fieldName);
-                    field.setAccessible(true);
-
-                    if (column.isPrimaryKey()) {
-                        primaryKeyColumn = column;
-                    }
-
-                    String type = field.getType().getSimpleName();
-                    Object value = null;
-                    switch (type) {
-                        case "String":
-                            value = cursor.getString(cursor.getColumnIndex(column.getColumnName()));
-                            break;
-                        case "int":
-                             value = cursor.getInt(cursor.getColumnIndex(column.getColumnName()));
-                            break;
-                        case "long":
-                            value = cursor.getLong(cursor.getColumnIndex(column.getColumnName()));
-                            break;
-                        case "float":
-                            value = cursor.getFloat(cursor.getColumnIndex(column.getColumnName()));
-                            break;
-                        case "double":
-                            value = cursor.getDouble(cursor.getColumnIndex(column.getColumnName()));
-                    }
-                    field.set(instance, value);
-                    if (column.isPrimaryKey()){
-                        primaryKeyVal=value+"";
-                    }
-                }
-                if (table.haveForeignTable()) {
-
-//                    Table foreignTable = Table.getTableInstance(table.haveForeignTable());
-//                    Cursor cursor1 = mDb.query(foreignTable.getTableName(),null,primaryKeyColumn.getColumnName()+"=?",new String[]{primaryKeyVal},null,null,null);
-
-                }
-                list.add(instance);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        cursor.close();
-        return list;
+        Table table=Table.getTableInstance(clazz);
+        return table.queryAll(mDb);
+//        // TODO: 2016/8/5 添加外键支持
+//        Table table = Table.getTableInstance(clazz);
+//
+//        Cursor cursor = mDb.query(table.getTableName(), null, null, null, null, null, null);
+//        if (cursor == null) return null;
+//
+//        List<T> list = new ArrayList<>();
+//        LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumns();
+//        while (cursor.moveToNext()) {
+//            try {
+//                T instance = clazz.newInstance();
+//                Column primaryKeyColumn = null;
+//                String primaryKeyVal = null;
+//                Iterator iterator = columnLinkedHashMap.entrySet().iterator();
+//                while (iterator.hasNext()) {
+//                    Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
+//                    String fieldName = entry.getKey();
+//                    Column column = entry.getValue();
+//                    Field field = clazz.getDeclaredField(fieldName);
+//                    field.setAccessible(true);
+//
+//                    if (column.isPrimaryKey()) {
+//                        primaryKeyColumn = column;
+//                    }
+//
+//                    String type = field.getType().getSimpleName();
+//                    Object value = null;
+//                    switch (type) {
+//                        case "String":
+//                            value = cursor.getString(cursor.getColumnIndex(column.getColumnName()));
+//                            break;
+//                        case "int":
+//                            value = cursor.getInt(cursor.getColumnIndex(column.getColumnName()));
+//                            break;
+//                        case "long":
+//                            value = cursor.getLong(cursor.getColumnIndex(column.getColumnName()));
+//                            break;
+//                        case "float":
+//                            value = cursor.getFloat(cursor.getColumnIndex(column.getColumnName()));
+//                            break;
+//                        case "double":
+//                            value = cursor.getDouble(cursor.getColumnIndex(column.getColumnName()));
+//                    }
+//                    field.set(instance, value);
+//                    if (column.isPrimaryKey()) {
+//                        primaryKeyVal = value + "";
+//                    }
+//                }
+//                if (table.haveForeignTable()) {
+//
+////                    Table foreignTable = Table.getTableInstance(table.haveForeignTable());
+////                    Cursor cursor1 = mDb.query(foreignTable.getTableName(),null,primaryKeyColumn.getColumnName()+"=?",new String[]{primaryKeyVal},null,null,null);
+//
+//                }
+//                list.add(instance);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        cursor.close();
+//        return list;
     }
 
     @Override
@@ -155,56 +157,14 @@ class EasyDbImpl extends EasyDbBaseImpl {
         Class clazz = object.getClass();
 
         Table table = Table.getTableInstance(clazz);
-        String primaryKeyValue = null;
-        String primaryKeyName = table.getPrimaryKeyName();
-        if (primaryKeyName == null) {
-            throw new DbException("没有找到主键！");
-        }
-        try {
-            Field field = clazz.getDeclaredField(primaryKeyName);
-            field.setAccessible(true);
-            String type = field.getType().getSimpleName();
-            switch (type) {
-                case "String":
-                    primaryKeyValue = (String) field.get(object);
-                    break;
-                case "int":
-                    primaryKeyValue = (int) field.get(object) + "";
-                    break;
-                case "long":
-                    primaryKeyValue = (long) field.get(object) + "";
-                    break;
-                case "float":
-                    primaryKeyValue = (float) field.get(object) + "";
-                    break;
-                case "double":
-                    primaryKeyValue = (double) field.get(object) + "";
-            }
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        mDb.delete(table.getTableName(), primaryKeyName + "=?", new String[]{primaryKeyValue});
-
-        //如果含有外键，则也需要删除对应的数据
-//        if (table.haveForeignTable() != null) {
-//            Table foreignTable = Table.getTableInstance(table.haveForeignTable());
-//            mDb.delete(foreignTable.getTableName(), primaryKeyName + "=?", new String[]{primaryKeyValue});
-//        }
+        table.delete(mDb, object);
     }
 
     @Override
     public void deleteAll(Class clazz) throws DbException {
         Table table = Table.getTableInstance(clazz);
-        if (table.isExist(mDb)) {
-            mDb.delete(table.getTableName(), null, null);
-
-            //如果含有外键，则也需要删除对应的数据
-//            if (table.haveForeignTable() != null) {
-//                Table foreignTable = Table.getTableInstance(table.haveForeignTable());
-//                mDb.delete(foreignTable.getTableName(), null, null);
-//            }
+        if (table != null && table.isExist(mDb)) {
+            table.deleteAll(mDb);
         }
     }
 }
