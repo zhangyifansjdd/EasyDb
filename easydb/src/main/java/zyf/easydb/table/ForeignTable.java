@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
-import zyf.easydb.Column;
-import zyf.easydb.ColumnTypeEnum;
+import zyf.easydb.column.Column;
+import zyf.easydb.column.ColumnTypeEnum;
 import zyf.easydb.DbException;
 
 /**

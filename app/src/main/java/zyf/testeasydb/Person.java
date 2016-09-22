@@ -1,8 +1,8 @@
 package zyf.testeasydb;
 
 
-import zyf.easydb.annotation.DbColumn;
-import zyf.easydb.annotation.DbTable;
+import zyf.easydb.column.DbColumn;
+import zyf.easydb.table.DbTable;
 
 /**
  * Created by ZhangYifan on 2016/7/27.

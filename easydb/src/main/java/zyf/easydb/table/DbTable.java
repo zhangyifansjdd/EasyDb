@@ -1,4 +1,4 @@
-package zyf.easydb.annotation;
+package zyf.easydb.table;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -3,7 +3,6 @@ package zyf.easydb.table;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -12,11 +11,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import zyf.easydb.Column;
+import zyf.easydb.column.Column;
 import zyf.easydb.DbException;
 import zyf.easydb.Selector;
-import zyf.easydb.annotation.DbColumn;
-import zyf.easydb.annotation.DbTable;
+import zyf.easydb.column.DbColumn;
 
 /**
  * 一张表的信息
@@ -33,7 +31,6 @@ public class Table extends TableInterfaceBaseImpl {
 
     protected Table(Class clazz) {
         super(clazz);
-
         Field[] fields = clazz.getDeclaredFields();
         if (fields != null && fields.length > 0) {
             mForeignTables = new HashMap<>();
@@ -188,7 +185,6 @@ public class Table extends TableInterfaceBaseImpl {
                             foreignTable.delete(database, obj);
                         }
                     }
-
                 }
             }
         } catch (Exception e) {
@@ -213,8 +209,6 @@ public class Table extends TableInterfaceBaseImpl {
 
     @Override
     public <T> List<T> query(@NonNull SQLiteDatabase database, Selector<T> selector) throws DbException {
-//        String sql = "select * from " + mTableName;
-
         String sql = null;
         if (selector != null) {
             sql=selector.toString();
@@ -292,56 +286,6 @@ public class Table extends TableInterfaceBaseImpl {
     @Override
     public <T> List<T> queryAll(@NonNull SQLiteDatabase database) throws DbException {
         return query(database, null);
-//        String sql = "select * from " + mTableName;
-//        Cursor cursor = database.rawQuery(sql, null);
-//        List<T> list = null;
-//        if (cursor != null) {
-//            list = new ArrayList<>();
-//            while (cursor.moveToNext()) {
-//                try {
-//                    T instance = (T) mClazz.newInstance();
-//                    Column primaryKeyColumn = null;
-//                    String primaryKeyVal = null;
-//                    Iterator iterator = mColumnLinkedHashMap.entrySet().iterator();
-//                    while (iterator.hasNext()) {
-//                        Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
-//                        String fieldName = entry.getKey();
-//                        Column column = entry.getValue();
-//                        Field field = mClazz.getDeclaredField(fieldName);
-//                        field.setAccessible(true);
-//
-//                        if (column.isCreateForeignTable()) {
-//                            ForeignTable foreignTable = mForeignTables.get(column.getForeignClass().getSimpleName());
-//                            field.set(instance, foreignTable.queryByPrimaryForeignKey(database, primaryKeyColumn, primaryKeyVal));
-//                        } else {
-//                            String type = field.getType().getSimpleName();
-//                            Object value = null;
-//                            switch (type) {
-//                                case "String":
-//                                    value = cursor.getString(cursor.getColumnIndex(column.getColumnName()));
-//                                    break;
-//                                case "int":
-//                                    value = cursor.getInt(cursor.getColumnIndex(column.getColumnName()));
-//                                    break;
-//                                case "long":
-//                                    value = cursor.getLong(cursor.getColumnIndex(column.getColumnName()));
-//                                    break;
-//                                case "float":
-//                                    value = cursor.getFloat(cursor.getColumnIndex(column.getColumnName()));
-//                                    break;
-//                                case "double":
-//                                    value = cursor.getDouble(cursor.getColumnIndex(column.getColumnName()));
-//                            }
-//                            field.set(instance, value);
-//                        }
-//                    }
-//                    list.add(instance);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//        return list;
     }
 
     /**

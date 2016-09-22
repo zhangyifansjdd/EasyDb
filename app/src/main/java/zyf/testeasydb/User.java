@@ -2,8 +2,8 @@ package zyf.testeasydb;
 
 import java.util.List;
 
-import zyf.easydb.annotation.DbColumn;
-import zyf.easydb.annotation.DbTable;
+import zyf.easydb.column.DbColumn;
+import zyf.easydb.table.DbTable;
 
 
 /**

@@ -1,17 +1,11 @@
 package zyf.easydb;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import zyf.easydb.annotation.DbColumn;
 import zyf.easydb.table.Table;
 
 /**

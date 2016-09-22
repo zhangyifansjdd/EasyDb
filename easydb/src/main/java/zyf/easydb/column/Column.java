@@ -1,8 +1,6 @@
-package zyf.easydb;
+package zyf.easydb.column;
 
 import java.lang.reflect.Field;
-
-import zyf.easydb.annotation.DbColumn;
 
 /**
  * 列信息

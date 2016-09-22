@@ -9,10 +9,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import zyf.easydb.Column;
+import zyf.easydb.column.Column;
 import zyf.easydb.DbException;
-import zyf.easydb.annotation.DbColumn;
-import zyf.easydb.annotation.DbTable;
+import zyf.easydb.column.DbColumn;
 
 /**
  * Created by ZhangYifan on 2016/8/19.

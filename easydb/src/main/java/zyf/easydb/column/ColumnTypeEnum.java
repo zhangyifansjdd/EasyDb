@@ -1,4 +1,4 @@
-package zyf.easydb;
+package zyf.easydb.column;
 
 /**
  * Sqlite数据存储类型的枚举
