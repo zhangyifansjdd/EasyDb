@@ -140,7 +140,7 @@ public class Selector<T> {
 
         @Override
         public String toString() {
-            return "select * from "+ mTable.getTableName()+" where "+columnName+sign+"'"+value+"'"+";";
+            return "select * from "+ mTable.getTableName()+" where "+columnName+sign+value+";";
         }
     }
 }

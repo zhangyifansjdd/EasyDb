@@ -10,18 +10,18 @@ import zyf.easydb.table.DbTable;
  * Created by ZhangYifan on 2016/6/29.
  */
 @DbTable(tableName = "user")
-public class User implements Cloneable{
+public class User implements Cloneable {
     @DbColumn(columnName = "userid", isPrimaryKey = true)
     private int userId;
 
     @DbColumn(columnName = "name")
     private String name;
 
+    @DbColumn(createForeignTable = true, foreignClass = Home.class)
+    private Home home;
+
     @DbColumn(createForeignTable = true, foreignClass = Salary.class)
     private List<Salary> salaries;
-
-//    @DbColumn(createForeignTable = true,foreignClass = String.class)
-//    private String[] friends;
 
     public User() {
     }
@@ -56,13 +56,13 @@ public class User implements Cloneable{
         this.salaries = salaries;
     }
 
-//    public String[] getFriends() {
-//        return friends;
-//    }
-//
-//    public void setFriends(String[] friends) {
-//        this.friends = friends;
-//    }
+    public Home getHome() {
+        return home;
+    }
+
+    public void setHome(Home home) {
+        this.home = home;
+    }
 
     @Override
     protected Object clone() throws CloneNotSupportedException {

@@ -11,9 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import zyf.easydb.column.Column;
 import zyf.easydb.DbException;
 import zyf.easydb.Selector;
+import zyf.easydb.column.Column;
 import zyf.easydb.column.DbColumn;
 
 /**
@@ -125,10 +125,14 @@ public class Table extends TableInterfaceBaseImpl {
 
                 if (column.isCreateForeignTable()) {
                     ForeignTable foreignTable = mForeignTables.get(column.getForeignClass().getSimpleName());
-                    List list = (List) val;
-                    for (Object obj : list) {
+                    if (val instanceof List) {
+                        List list = (List) val;
+                        for (Object obj : list) {
 
-                        foreignTable.insert(database, obj, primaryKeyVal);
+                            foreignTable.insert(database, obj, primaryKeyVal);
+                        }
+                    } else {
+                        foreignTable.insert(database, val, primaryKeyVal);
                     }
                     continue;
                 }
@@ -167,7 +171,11 @@ public class Table extends TableInterfaceBaseImpl {
             field.setAccessible(true);
             primaryKeyVal = field.get(object).toString();
 
-            String sql = "delete from " + mTableName + " where " + primaryKeyName + "=" + primaryKeyVal + ";";
+            String type = field.getType().getSimpleName();
+            boolean b = type.equals("String");
+            String s = b ? "'" : "";
+
+            String sql = "delete from " + mTableName + " where " + primaryKeyName +"="+ s + primaryKeyVal + s + ";";
             database.execSQL(sql);
 
             if (haveForeignTable()) {
@@ -179,11 +187,17 @@ public class Table extends TableInterfaceBaseImpl {
                     // TODO: 2016/8/25 foreignField不对
                     Field foreignField = mForeignTableFieldHashMap.get(foreignTable);
                     foreignField.setAccessible(true);
-                    List list = (List) foreignField.get(object);
-                    if (list != null && list.size() > 0) {
-                        for (Object obj : list) {
-                            foreignTable.delete(database, obj);
+
+                    Object foreignFieldObj = foreignField.get(object);
+                    if (foreignFieldObj instanceof List) {
+                        List list = (List) foreignField.get(object);
+                        if (list != null && list.size() > 0) {
+                            for (Object obj : list) {
+                                foreignTable.delete(database, obj);
+                            }
                         }
+                    } else {
+                        foreignTable.delete(database, foreignFieldObj);
                     }
                 }
             }
@@ -211,7 +225,7 @@ public class Table extends TableInterfaceBaseImpl {
     public <T> List<T> query(@NonNull SQLiteDatabase database, Selector<T> selector) throws DbException {
         String sql = null;
         if (selector != null) {
-            sql=selector.toString();
+            sql = selector.toString();
         } else {
             sql = "select * from " + mTableName;
         }
@@ -263,14 +277,18 @@ public class Table extends TableInterfaceBaseImpl {
                         while (foreignIterator.hasNext()) {
                             Map.Entry<String, ForeignTable> entry = (Map.Entry<String, ForeignTable>) foreignIterator.next();
                             ForeignTable foreignTable = entry.getValue();
-                            Field foreignTableField=mForeignTableFieldHashMap.get(foreignTable);
+                            Field foreignTableField = mForeignTableFieldHashMap.get(foreignTable);
                             foreignTableField.setAccessible(true);
                             // TODO: 2016/8/25 查找外键
-                            Selector s=Selector.fromTable(foreignTable.getClazz());
-                            Selector.Express express=s.new Express(primaryKeyColumn.getColumnName(),"=",primaryKeyVal);
+                            Selector s = Selector.fromTable(foreignTable.getClazz());
+                            Selector.Express express = s.new Express(primaryKeyColumn.getColumnName(), "=", primaryKeyVal);
                             s.addExpress(express);
-                            List list1=foreignTable.query(database, s);
-                            foreignTableField.set(instance,list1);
+                            List list1 = foreignTable.query(database, s);
+                            if (foreignTableField.getType().isAssignableFrom(List.class)) {
+                                foreignTableField.set(instance, list1);
+                            }else {
+                                foreignTableField.set(instance,list1.get(0));
+                            }
                         }
                     }
 

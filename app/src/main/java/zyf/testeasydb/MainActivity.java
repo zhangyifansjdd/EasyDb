@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         salaries.add(salary1);
         salaries.add(salary2);
         user.setSalaries(salaries);
+        user.setHome(new Home("金地",140));
         mEasyDb.insert(user);
         List<User> list=mEasyDb.queryAll(User.class);
         mEasyDb.delete(user);

@@ -18,7 +18,6 @@ public class ForeignTable extends Table {
 
     protected ForeignTable(Class clazz, Table table) {
         super(clazz);
-
         mTable = table;
 //        HashMap<String, Column> columns = mTable.getColumns();
 //        Set set = columns.entrySet();
