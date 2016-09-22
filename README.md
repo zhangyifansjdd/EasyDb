@@ -1,21 +1,15 @@
 
-[一个简单易用的数据库框架](https://github.com/zhangyifansjdd)\n
+[一个简单易用的数据库框架](https://github.com/zhangyifansjdd)
+
 **gradle引用：**
-<pre><code>compile 'zyf.easydb:easydb:0.0.5'
-</code></pre>\n
+<pre><code>
+compile 'zyf.easydb:easydb:0.0.5'
+</code></pre>
 
 实体类注解设置的实例：
-<pre><code>package zyf.testeasydb;
-           
-           import java.util.List;
-           
-           import zyf.easydb.column.DbColumn;
-           import zyf.easydb.table.DbTable;
-           
-           
-           /**
-            * Created by ZhangYifan on 2016/6/29.
-            */
+
+1.最外层的类
+<pre><code>
            @DbTable(tableName = "user")
            public class User implements Cloneable {
                @DbColumn(columnName = "userid", isPrimaryKey = true)
@@ -79,15 +73,8 @@
 
 </code></pre>\n
 
-
-<pre><code>package zyf.testeasydb;
-           
-           import zyf.easydb.column.DbColumn;
-           import zyf.easydb.table.DbTable;
-           
-           /**
-            * Created by ZhangYifan on 2016/9/22.
-            */
+2.作为User中的一个成员变量保存
+<pre><code>
            @DbTable(tableName = "home")
            public class Home {
                @DbColumn(isPrimaryKey = true,columnName = "address")
@@ -106,15 +93,8 @@
 
 </code></pre>\n
 
-<pre><code>package zyf.testeasydb;
-           
-           
-           import zyf.easydb.column.DbColumn;
-           import zyf.easydb.table.DbTable;
-           
-           /**
-            * Created by ZhangYifan on 2016/7/20.
-            */
+3.作为User中一个使用list保存的类
+<pre><code>
            @DbTable(tableName = "salary")
            public class Salary {
                @DbColumn(columnName = "salaryId" ,isPrimaryKey = true)
@@ -148,7 +128,7 @@
                }
            }
 
-</code></pre>\n
+</code></pre>
 
 `下一步编写计划：` 
 1.线程安全问题
