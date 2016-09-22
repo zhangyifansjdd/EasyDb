@@ -1,14 +1,13 @@
+![zhangyifan](http://img4.duitang.com/uploads/item/201407/29/20140729151017_eESzE.thumb.224_0.jpeg)
 
-[一个简单易用的数据库框架](https://github.com/zhangyifansjdd)
-
-**gradle引用：**
+##gradle引用
 <pre><code>
 compile 'zyf.easydb:easydb:0.0.5'
 </code></pre>
 
-实体类注解设置的实例：
+##实体类注解设置的实例：
 
-1.最外层的类
+1.最外层的User类
 <pre><code>
            @DbTable(tableName = "user")
            public class User implements Cloneable {
@@ -71,7 +70,7 @@ compile 'zyf.easydb:easydb:0.0.5'
                }
            }
 
-</code></pre>\n
+</code></pre>
 
 2.作为User中的一个成员变量保存
 <pre><code>
@@ -91,7 +90,7 @@ compile 'zyf.easydb:easydb:0.0.5'
                }
            }
 
-</code></pre>\n
+</code></pre>
 
 3.作为User中一个使用list保存的类
 <pre><code>
@@ -130,9 +129,23 @@ compile 'zyf.easydb:easydb:0.0.5'
 
 </code></pre>
 
-`下一步编写计划：` 
+`注`：
+
+1.每一个实体类必须含有一个主键
+
+2.每个表需设置表明，除外键之外，没个列需设置列名
+
+
+
+##下一步编写计划： 
 1.线程安全问题
 2.事务的开启
 3.数据库的配置类
 4.数据库的升级
 5.Selector的编写
+
+
+
+##我的联系方式（欢迎骚扰）： 
+* 邮件(zhangyifansjdd@163.com)
+* QQ: 1036898516
