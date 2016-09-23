@@ -1,4 +1,4 @@
-package zyf.easydb.annotation;
+package zyf.easydb.table;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,5 +11,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DbTable {
+    //表名
     String tableName();
 }
