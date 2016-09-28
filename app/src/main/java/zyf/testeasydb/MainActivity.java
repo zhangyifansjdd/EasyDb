@@ -10,6 +10,7 @@ import java.util.List;
 import zyf.easydb.DbException;
 import zyf.easydb.EasyDb;
 import zyf.easydb.EasyDbConfig;
+import zyf.easydb.Where;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,6 +46,11 @@ public class MainActivity extends AppCompatActivity {
         user.setHome(new Home("金地", 140));
         mEasyDb.insert(user);
         List<User> list = mEasyDb.queryAll(User.class);
+        Where where = new Where();
+        where.andExpress(new Where.Express("id", ">", "10"));
+        where.orExpress(new Where.Express("name","=","ZYF"));
+        Log.i("ZYF1", "test: "+where.toString());
+//        List<User> list1 = mEasyDb.query(selector);
         mEasyDb.delete(user);
         Log.i("ZYF", "test: ");
     }

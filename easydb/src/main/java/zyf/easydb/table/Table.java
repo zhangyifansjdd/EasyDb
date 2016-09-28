@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import zyf.easydb.DbException;
-import zyf.easydb.Selector;
+import zyf.easydb.Where;
 import zyf.easydb.column.Column;
 import zyf.easydb.column.DbColumn;
 
@@ -223,13 +223,8 @@ public class Table extends TableInterfaceBaseImpl {
     }
 
     @Override
-    public <T> List<T> query(@NonNull SQLiteDatabase database, Selector<T> selector) throws DbException {
-        String sql = null;
-        if (selector != null) {
-            sql = selector.toString();
-        } else {
-            sql = "select * from " + mTableName;
-        }
+    public <T> List<T> query(@NonNull SQLiteDatabase database, Where where) throws DbException {
+        String sql = "select * from " + mTableName + " " + (where == null ? "" : where.toString()) + ";";
         Cursor cursor = database.rawQuery(sql, null);
         List<T> list = null;
         if (cursor != null) {
@@ -270,7 +265,6 @@ public class Table extends TableInterfaceBaseImpl {
                             primaryKeyVal = value.toString();
                         }
                         field.set(instance, value);
-
                     }
 
                     if (haveForeignTable()) {
@@ -281,10 +275,12 @@ public class Table extends TableInterfaceBaseImpl {
                             Field foreignTableField = mForeignTableFieldHashMap.get(foreignTable);
                             foreignTableField.setAccessible(true);
                             // TODO: 2016/8/25 查找外键
-                            Selector s = Selector.fromTable(foreignTable.getClazz());
-                            Selector.Express express = s.new Express(primaryKeyColumn.getColumnName(), "=", primaryKeyVal);
-                            s.addExpress(express);
-                            List list1 = foreignTable.query(database, s);
+//                            Selector s = Selector.fromTable(foreignTable.getClazz());
+//                            Selector.Express express = s.new Express(primaryKeyColumn.getColumnName(), "=", primaryKeyVal);
+//                            s.addExpress(express);
+                            Where where1=new Where();
+                            where1.andExpress(new Where.Express(primaryKeyColumn.getColumnName(), "=", primaryKeyVal));
+                            List list1 = foreignTable.query(database, where1);
                             if (foreignTableField.getType().isAssignableFrom(List.class)) {
                                 foreignTableField.set(instance, list1);
                             } else {

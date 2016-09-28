@@ -1,9 +1,7 @@
 package zyf.easydb;
 
 import android.content.Context;
-import android.database.Cursor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import zyf.easydb.table.Table;
@@ -19,7 +17,7 @@ class EasyDbImpl extends EasyDbBaseImpl {
         super(context);
     }
 
-    protected EasyDbImpl(EasyDbConfig config){
+    protected EasyDbImpl(EasyDbConfig config) {
         super(config);
     }
 
@@ -55,29 +53,21 @@ class EasyDbImpl extends EasyDbBaseImpl {
     }
 
     @Override
-    public <T> List<T> query(Selector<T> selector) throws DbException {
-        Cursor cursor = mDb.query(selector.getTableName(), selector.getDisplayColumns(), selector.getQueryColumns(), selector.getQueryArgs(), null, null, selector.getOrderBy());
+    public <T> List<T> query(Where where) throws DbException {
         List<T> list = null;
-        if (cursor != null) {
-            list = new ArrayList<>();
-            while (cursor.moveToNext()) {
-                try {
-                    T instance = (T) selector.getTable().getClazz().newInstance();
-                    for (String disPlaycolumn : selector.getDisplayColumns()) {
 
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         return list;
     }
 
     @Override
     public <T> List<T> queryAll(Class<T> clazz) throws DbException {
-        Table table=Table.getTableInstance(clazz);
+        Table table = Table.getTableInstance(clazz);
         return table.queryAll(mDb);
+    }
+
+    @Override
+    public <T> T queryByPrimaryKey(Class<T> clazz, Object primaryKey) throws DbException {
+        return null;
     }
 
     @Override
