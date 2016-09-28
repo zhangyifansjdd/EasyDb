@@ -42,12 +42,12 @@ public interface EasyDb extends Closeable {
 
     /**
      * 查找数据
-     * @param selector 选择器，用来构成查询条件
+     * @param where 选择器，用来构成查询条件
      * @param <T> 返回的实体类的类型
      * @return
      * @throws DbException
      */
-    <T> List<T> query(Selector<T> selector) throws DbException;
+    <T> List<T> query(Where where) throws DbException;
 
     /**
      * 查找某一张表的全部数据
@@ -57,6 +57,8 @@ public interface EasyDb extends Closeable {
      * @throws DbException
      */
     <T> List<T> queryAll(Class<T> clazz) throws DbException;
+
+    <T> T queryByPrimaryKey(Class<T> clazz,Object primaryKey) throws DbException;
 
     /**
      * 删除某一条数据
