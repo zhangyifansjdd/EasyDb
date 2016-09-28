@@ -3,7 +3,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 //版本号
-version = "0.0.6"
+version = "0.0.8"
 
 android {
     resourcePrefix "cc_" //随意填写
@@ -33,7 +33,7 @@ dependencies {
 
 def siteUrl = 'https://github.com/zhangyifansjdd/EasyDb'   // 项目的主页
 def gitUrl = 'https://github.com/zhangyifansjdd/EasyDb.git'   // Git仓库的url
-group = "zyf.easydb"            // Maven Group ID for the artifact，一般填你唯一的包名
+group = "zyf.easyutils"            // Maven Group ID for the artifact，一般填你唯一的包名
 install {
     repositories.mavenInstaller {
         // This generates POM.xml with proper parameters

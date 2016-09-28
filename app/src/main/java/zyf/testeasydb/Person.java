@@ -11,7 +11,6 @@ import zyf.easydb.table.DbTable;
 public class Person {
     @DbColumn(columnName = "id",isPrimaryKey = true)
     private int id;
-    @DbColumn(columnName = "name")
     private String name;
 
     public Person() {

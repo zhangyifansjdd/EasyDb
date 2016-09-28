@@ -14,18 +14,13 @@ import zyf.easydb.table.Table;
  * Created by ZhangYifan on 2016/7/29.
  */
 class EasyDbImpl extends EasyDbBaseImpl {
-    private static EasyDb sInstance;
 
-    private EasyDbImpl(Context context) {
+    protected EasyDbImpl(Context context) {
         super(context);
     }
 
-    public static synchronized EasyDb getInstance(Context context) {
-        // TODO: 2016/7/27 调整单例模式，提高效率
-        if (sInstance == null) {
-            sInstance = new EasyDbImpl(context);
-        }
-        return sInstance;
+    protected EasyDbImpl(EasyDbConfig config){
+        super(config);
     }
 
     @Override
@@ -83,67 +78,6 @@ class EasyDbImpl extends EasyDbBaseImpl {
     public <T> List<T> queryAll(Class<T> clazz) throws DbException {
         Table table=Table.getTableInstance(clazz);
         return table.queryAll(mDb);
-//        // TODO: 2016/8/5 添加外键支持
-//        Table table = Table.getTableInstance(clazz);
-//
-//        Cursor cursor = mDb.query(table.getTableName(), null, null, null, null, null, null);
-//        if (cursor == null) return null;
-//
-//        List<T> list = new ArrayList<>();
-//        LinkedHashMap<String, Column> columnLinkedHashMap = table.getColumns();
-//        while (cursor.moveToNext()) {
-//            try {
-//                T instance = clazz.newInstance();
-//                Column primaryKeyColumn = null;
-//                String primaryKeyVal = null;
-//                Iterator iterator = columnLinkedHashMap.entrySet().iterator();
-//                while (iterator.hasNext()) {
-//                    Map.Entry<String, Column> entry = (Map.Entry<String, Column>) iterator.next();
-//                    String fieldName = entry.getKey();
-//                    Column column = entry.getValue();
-//                    Field field = clazz.getDeclaredField(fieldName);
-//                    field.setAccessible(true);
-//
-//                    if (column.isPrimaryKey()) {
-//                        primaryKeyColumn = column;
-//                    }
-//
-//                    String type = field.getType().getSimpleName();
-//                    Object value = null;
-//                    switch (type) {
-//                        case "String":
-//                            value = cursor.getString(cursor.getColumnIndex(column.getColumnName()));
-//                            break;
-//                        case "int":
-//                            value = cursor.getInt(cursor.getColumnIndex(column.getColumnName()));
-//                            break;
-//                        case "long":
-//                            value = cursor.getLong(cursor.getColumnIndex(column.getColumnName()));
-//                            break;
-//                        case "float":
-//                            value = cursor.getFloat(cursor.getColumnIndex(column.getColumnName()));
-//                            break;
-//                        case "double":
-//                            value = cursor.getDouble(cursor.getColumnIndex(column.getColumnName()));
-//                    }
-//                    field.set(instance, value);
-//                    if (column.isPrimaryKey()) {
-//                        primaryKeyVal = value + "";
-//                    }
-//                }
-//                if (table.haveForeignTable()) {
-//
-////                    Table foreignTable = Table.getTableInstance(table.haveForeignTable());
-////                    Cursor cursor1 = mDb.query(foreignTable.getTableName(),null,primaryKeyColumn.getColumnName()+"=?",new String[]{primaryKeyVal},null,null,null);
-//
-//                }
-//                list.add(instance);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        cursor.close();
-//        return list;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package zyf.easydb;
 
+import android.content.Context;
+
 import java.io.Closeable;
 import java.util.List;
 
@@ -86,4 +88,14 @@ public interface EasyDb extends Closeable {
     void dropTable(Class clazz) throws DbException;
 
     void execSQL(String sql) throws DbException;
+
+    public static class Builder{
+        public EasyDb buildEasyDb(EasyDbConfig config){
+            return EasyDbBaseImpl.buildEasyDb(config);
+        }
+
+        public EasyDb getEasyDb(Context context){
+            return EasyDbBaseImpl.getInstance();
+        }
+    }
 }

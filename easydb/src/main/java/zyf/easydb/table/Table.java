@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import zyf.easydb.DbException;
 import zyf.easydb.Selector;
@@ -25,7 +26,7 @@ import zyf.easydb.column.DbColumn;
  */
 public class Table extends TableInterfaceBaseImpl {
 
-    protected static HashMap<String, Table> sTableInstances;
+    protected static ConcurrentHashMap<String, Table> sTableInstances;
     protected HashMap<String, ForeignTable> mForeignTables;
     protected HashMap<ForeignTable, Field> mForeignTableFieldHashMap;
 
@@ -37,7 +38,7 @@ public class Table extends TableInterfaceBaseImpl {
             mForeignTableFieldHashMap = new HashMap<>();
             for (Field field : fields) {
                 DbColumn dbColumn = field.getAnnotation(DbColumn.class);
-                if (dbColumn.createForeignTable()) {
+                if (dbColumn != null && dbColumn.createForeignTable()) {
                     ForeignTable foreignTable = new ForeignTable(dbColumn.foreignClass(), this);
                     mForeignTables.put(dbColumn.foreignClass().getSimpleName(), foreignTable);
                     mForeignTableFieldHashMap.put(foreignTable, field);
@@ -64,7 +65,7 @@ public class Table extends TableInterfaceBaseImpl {
             }
         }
         if (sTableInstances == null) {
-            sTableInstances = new HashMap<>();
+            sTableInstances = new ConcurrentHashMap<>();
         }
         table = sTableInstances.get(tableName);
         if (table == null) {
@@ -175,7 +176,7 @@ public class Table extends TableInterfaceBaseImpl {
             boolean b = type.equals("String");
             String s = b ? "'" : "";
 
-            String sql = "delete from " + mTableName + " where " + primaryKeyName +"="+ s + primaryKeyVal + s + ";";
+            String sql = "delete from " + mTableName + " where " + primaryKeyName + "=" + s + primaryKeyVal + s + ";";
             database.execSQL(sql);
 
             if (haveForeignTable()) {
@@ -286,8 +287,8 @@ public class Table extends TableInterfaceBaseImpl {
                             List list1 = foreignTable.query(database, s);
                             if (foreignTableField.getType().isAssignableFrom(List.class)) {
                                 foreignTableField.set(instance, list1);
-                            }else {
-                                foreignTableField.set(instance,list1.get(0));
+                            } else {
+                                foreignTableField.set(instance, list1.get(0));
                             }
                         }
                     }

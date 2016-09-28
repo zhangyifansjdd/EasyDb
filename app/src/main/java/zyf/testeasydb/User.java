@@ -11,10 +11,13 @@ import zyf.easydb.table.DbTable;
  */
 @DbTable(tableName = "user")
 public class User implements Cloneable {
+
+    private static final long serialVersionUID = 1L;
+
     @DbColumn(columnName = "userid", isPrimaryKey = true)
     private int userId;
 
-    @DbColumn(columnName = "name")
+//    @DbColumn(columnName = "name")
     private String name;
 
     @DbColumn(createForeignTable = true, foreignClass = Home.class)

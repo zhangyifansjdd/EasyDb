@@ -16,16 +16,15 @@ public class Column implements Cloneable {
     private boolean createForeignTable;
     private Class foreignClass;
 
-//    public static final String relational_less="<";
-//    public static final String relational_equal="=";
-//    public static final String relational_greater=">";
-//    public static final String relational_less_equal="<=";
-//    public static final String relational_=">";
-//    public static final String relational_less=">";
-
     public Column(Field field, DbColumn dbColumn) {
         this.field = field;
-        columnName = dbColumn.columnName();
+        if (dbColumn == null ) {
+            //没有给成员变量设置该注解，则使用该变量名作为列名
+            columnName = field.getName();
+            return;
+        } else {
+            columnName = dbColumn.columnName();
+        }
         isPrimaryKey = dbColumn.isPrimaryKey();
         createForeignTable = dbColumn.createForeignTable();
         if (createForeignTable) {

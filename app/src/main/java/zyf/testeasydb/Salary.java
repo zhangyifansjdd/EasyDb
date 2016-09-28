@@ -12,7 +12,7 @@ public class Salary {
     @DbColumn(columnName = "salaryId" ,isPrimaryKey = true)
     int salaryId;
 
-    @DbColumn(columnName = "price")
+//    @DbColumn(columnName = "price")
     int price;
 
     public Salary() {
