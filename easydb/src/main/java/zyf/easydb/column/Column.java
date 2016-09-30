@@ -15,20 +15,34 @@ public class Column implements Cloneable {
     private boolean isPrimaryKey;
     private boolean createForeignTable;
     private Class foreignClass;
+    private boolean ignore;
+    private boolean autoGeneratePrimaryKey;
 
     public Column(Field field, DbColumn dbColumn) {
         this.field = field;
-        if (dbColumn == null ) {
+        if (dbColumn == null) {
             //没有给成员变量设置该注解，则使用该变量名作为列名
             columnName = field.getName();
             return;
         } else {
-            columnName = dbColumn.columnName();
+            if ("".equals(dbColumn.columnName())) {
+                columnName = field.getName();
+            } else {
+                columnName = dbColumn.columnName();
+            }
         }
         isPrimaryKey = dbColumn.isPrimaryKey();
-        createForeignTable = dbColumn.createForeignTable();
-        if (createForeignTable) {
+        ignore = dbColumn.ignore();
+        autoGeneratePrimaryKey = dbColumn.autoGeneratePrimaryKey();
+//        createForeignTable = dbColumn.createForeignTable();
+//        if (createForeignTable) {
+//            foreignClass = dbColumn.foreignClass();
+//        } else {
+//            foreignClass = null;
+//        }
+        if (dbColumn.foreignClass() != Class.class) {
             foreignClass = dbColumn.foreignClass();
+            createForeignTable = true;
         } else {
             foreignClass = null;
         }
@@ -58,6 +72,38 @@ public class Column implements Cloneable {
         isPrimaryKey = primaryKey;
     }
 
+    public void setField(Field field) {
+        this.field = field;
+    }
+
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
+    }
+
+    public void setCreateForeignTable(boolean createForeignTable) {
+        this.createForeignTable = createForeignTable;
+    }
+
+    public void setForeignClass(Class foreignClass) {
+        this.foreignClass = foreignClass;
+    }
+
+    public boolean isIgnore() {
+        return ignore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        this.ignore = ignore;
+    }
+
+    public boolean isAutoGeneratePrimaryKey() {
+        return autoGeneratePrimaryKey;
+    }
+
+    public void setAutoGeneratePrimaryKey(boolean autoGeneratePrimaryKey) {
+        this.autoGeneratePrimaryKey = autoGeneratePrimaryKey;
+    }
+
     public ColumnTypeEnum getColumnDataBaseType() {
         Class clazz = field.getType();
         String fieldTypeName = clazz.getSimpleName();
@@ -70,11 +116,6 @@ public class Column implements Cloneable {
         }
         return ColumnTypeEnum.NULL;
     }
-
-    public String relational(String relation, String arg) {
-        return columnName + relation + arg;
-    }
-
 
     @Override
     public Object clone() throws CloneNotSupportedException {

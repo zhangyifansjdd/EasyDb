@@ -3,19 +3,17 @@ package zyf.easydb.table;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import zyf.easydb.DbException;
 import zyf.easydb.Where;
 import zyf.easydb.column.Column;
-import zyf.easydb.column.DbColumn;
 
 /**
  * 一张表的信息
@@ -26,69 +24,8 @@ import zyf.easydb.column.DbColumn;
  */
 public class Table extends TableInterfaceBaseImpl {
 
-    protected static ConcurrentHashMap<String, Table> sTableInstances;
-    protected HashMap<String, ForeignTable> mForeignTables;
-    protected HashMap<ForeignTable, Field> mForeignTableFieldHashMap;
-
     protected Table(Class clazz) {
         super(clazz);
-        Field[] fields = clazz.getDeclaredFields();
-        if (fields != null && fields.length > 0) {
-            mForeignTables = new HashMap<>();
-            mForeignTableFieldHashMap = new HashMap<>();
-            for (Field field : fields) {
-                DbColumn dbColumn = field.getAnnotation(DbColumn.class);
-                if (dbColumn != null && dbColumn.createForeignTable()) {
-                    ForeignTable foreignTable = new ForeignTable(dbColumn.foreignClass(), this);
-                    mForeignTables.put(dbColumn.foreignClass().getSimpleName(), foreignTable);
-                    mForeignTableFieldHashMap.put(foreignTable, field);
-                }
-            }
-        }
-    }
-
-    /**
-     * 容器单例模式实现table的单例及存储，提高获取table的效率
-     *
-     * @param clazz
-     * @return
-     * @throws DbException
-     */
-    public static synchronized Table getTableInstance(Class clazz) throws DbException {
-        Table table = null;
-        String tableName = null;
-        DbTable dbTable = (DbTable) clazz.getAnnotation(DbTable.class);
-        if (dbTable != null) {
-            tableName = dbTable.tableName();
-            if (tableName == null) {
-                throw new DbException("没有设置" + clazz.getSimpleName() + "的表名!");
-            }
-        }
-        if (sTableInstances == null) {
-            sTableInstances = new ConcurrentHashMap<>();
-        }
-        table = sTableInstances.get(tableName);
-        if (table == null) {
-            table = new Table(clazz);
-            sTableInstances.put(tableName, table);
-        }
-        return table;
-    }
-
-    /**
-     * 该表是否含有外键
-     *
-     * @return
-     */
-    public boolean haveForeignTable() {
-        boolean have = false;
-        if (mForeignTables != null && mForeignTables.size() > 0)
-            have = true;
-        return have;
-    }
-
-    protected HashMap<String, ForeignTable> getForeignTables() {
-        return mForeignTables;
     }
 
     @Override
@@ -158,6 +95,7 @@ public class Table extends TableInterfaceBaseImpl {
         sqlBuilder.append(");");
 
         String sql = sqlBuilder.toString();
+        Log.i("ZYF1", "insert: "+sql);
         database.execSQL(sql);
 
         return primaryKeyVal;
@@ -184,8 +122,6 @@ public class Table extends TableInterfaceBaseImpl {
                 while (foreignIterator.hasNext()) {
                     Map.Entry<String, ForeignTable> entry = (Map.Entry<String, ForeignTable>) foreignIterator.next();
                     ForeignTable foreignTable = entry.getValue();
-//                    foreignTable.delete(database, primaryKeyVal);
-                    // TODO: 2016/8/25 foreignField不对
                     Field foreignField = mForeignTableFieldHashMap.get(foreignTable);
                     foreignField.setAccessible(true);
 
@@ -278,7 +214,7 @@ public class Table extends TableInterfaceBaseImpl {
 //                            Selector s = Selector.fromTable(foreignTable.getClazz());
 //                            Selector.Express express = s.new Express(primaryKeyColumn.getColumnName(), "=", primaryKeyVal);
 //                            s.addExpress(express);
-                            Where where1=new Where();
+                            Where where1 = new Where();
                             where1.andExpress(new Where.Express(primaryKeyColumn.getColumnName(), "=", primaryKeyVal));
                             List list1 = foreignTable.query(database, where1);
                             if (foreignTableField.getType().isAssignableFrom(List.class)) {

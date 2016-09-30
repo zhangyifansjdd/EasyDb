@@ -21,9 +21,14 @@ public @interface DbColumn {
     //该列是否是主键 必须存在一个主键
     boolean isPrimaryKey() default false;
 
-    //是否创建另一张表，并关联外键
-    boolean createForeignTable() default false;
+//    //是否创建另一张表，并关联外键
+//    boolean createForeignTable() default false;
 
     //若需要关键外键，需指定外键表的类型
     Class foreignClass() default Class.class;
+
+    boolean ignore() default false;
+
+    boolean autoGeneratePrimaryKey() default false;
+
 }

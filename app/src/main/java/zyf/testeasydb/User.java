@@ -20,10 +20,10 @@ public class User implements Cloneable {
 //    @DbColumn(columnName = "name")
     private String name;
 
-    @DbColumn(createForeignTable = true, foreignClass = Home.class)
+    @DbColumn(foreignClass = Home.class)
     private Home home;
 
-    @DbColumn(createForeignTable = true, foreignClass = Salary.class)
+    @DbColumn(foreignClass = Salary.class)
     private List<Salary> salaries;
 
     public User() {
